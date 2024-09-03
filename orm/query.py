@@ -1,10 +1,12 @@
-from .utils import map_to_instance
+import jit_wrapper
+from package.runtime import main
 
 class Query:
     def __init__(self, model_class, session):
         self.model_class = model_class
         self.session = session
         self.filters = {}
+        self.compile = main()
 
     def filter(self, **kwargs):
         self.filters.update(kwargs)
@@ -20,7 +22,7 @@ class Query:
             params = []
 
         rows = self.session.storage.execute(query, params).fetchall()
-        return [map_to_instance(self.model_class, row) for row in rows]
+        return [jit_wrapper.map_to_instance(self.model_class, row) for row in rows]
 
     def first(self):
         results = self.all()
