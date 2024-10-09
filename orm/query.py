@@ -1,5 +1,5 @@
 import jit_wrapper
-from jitorm.orm.package.runtime import main
+from orm.package.runtime import main
 
 class Query:
     def __init__(self, model_class, session):

@@ -1,28 +1,36 @@
-# Menggunakan image Python sebagai base image
-FROM python:3.11-slim
+# Menggunakan Python 3.12-alpine sebagai base image
+FROM python:3.12-alpine
 
-# Set environment variables
+# Set environment variable untuk memastikan Python tidak buffering output
 ENV PYTHONUNBUFFERED=1
 
-# Install gcc dan dependencies lain yang diperlukan
-RUN apt-get update && apt-get install -y \
+# Install dependencies, termasuk LLVM untuk llvmlite
+RUN apk update && \
+    apk add --no-cache \
     gcc \
-    build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    g++ \
+    llvm15-dev \
+    llvm15 \
+    clang15 \
+    libc-dev \
+    musl-dev \
+    make
 
-# Menentukan direktori kerja di dalam container
+# Buat folder kerja di container
 WORKDIR /app
 
-# Copy file requirements.txt ke dalam container
-COPY requirements.txt /app/
+# Salin file yang diperlukan ke dalam container
+COPY . /app
 
-# Install dependencies dari requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Copy semua file dari direktori proyek ke dalam container
-COPY . /app/
-
-# Install dependencies menggunakan setup.py
+# Build C extension untuk ORM
 RUN python setup.py build && \
     python setup.py install
+
+# Perintah untuk menjalankan script testing
+CMD ["python", "test_jitorm.py"]
+
+# Install dependencies menggunakan setup.py
