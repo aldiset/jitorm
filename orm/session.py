@@ -13,6 +13,9 @@ class Session:
         query = f"INSERT INTO {instance.__class__.__name__.lower()} ({columns}) VALUES ({placeholders})"
         self.storage.execute(query, list(instance_dict.values()))
         self._transaction.append(('add', instance))
+        
+        # Refresh instance to retrieve autoincremented ID
+        self.refresh(instance)
 
     def commit(self):
         self.storage.commit()
@@ -46,3 +49,17 @@ class Session:
             params = list(filters.values())
             self.storage.execute(query, params)
             self._transaction.append(('delete', instance))
+
+    def refresh(self, instance):
+        table_name = instance.__class__.__name__.lower()
+        query = f"SELECT * FROM {table_name} WHERE rowid = last_insert_rowid()"  # Untuk mendapatkan ID terakhir
+        cursor = self.storage.execute(query)
+        row = cursor.fetchone()
+        
+        if row:
+            # Mengambil semua kolom dari hasil query
+            fields = list(instance._fields.keys())
+            for idx, field in enumerate(fields):
+                setattr(instance, field, row[idx])
+
+        return instance

@@ -22,6 +22,7 @@ class Query:
             params = []
 
         rows = self.session.storage.execute(query, params).fetchall()
+        breakpoint()
         return [jit_wrapper.map_to_instance(self.model_class, row) for row in rows]
 
     def first(self):
