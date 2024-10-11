@@ -12,18 +12,9 @@ class IntegerField(Field):
 class StringField(Field):
     def __init__(self, primary_key=False):
         super().__init__(str, primary_key)
+        
 
-
-class StringFloat(Field):
-    def __init__(self, primary_key=False):
-        super().__init__(float, primary_key)
-
-
-class StringBoolean(Field):
+class BooleanField(Field):
     def __init__(self, primary_key=False):
         super().__init__(bool, primary_key)
 
-
-class AutoField(IntegerField):
-    def __init__(self):
-        super().__init__(primary_key=True)

@@ -1,5 +1,4 @@
 from .query import Query
-from .utils import instance_to_dict
 
 class Session:
     def __init__(self, storage):
@@ -7,14 +6,13 @@ class Session:
         self._transaction = []
 
     def add(self, instance):
-        instance_dict = instance_to_dict(instance)
+        instance_dict = {field: getattr(instance, field) for field in instance._fields if field!="id"}
         columns = ', '.join(instance_dict.keys())
         placeholders = ', '.join(['?' for _ in instance_dict.values()])
         query = f"INSERT INTO {instance.__class__.__name__.lower()} ({columns}) VALUES ({placeholders})"
         self.storage.execute(query, list(instance_dict.values()))
         self._transaction.append(('add', instance))
         
-        # Refresh instance to retrieve autoincremented ID
         self.refresh(instance)
 
     def commit(self):
