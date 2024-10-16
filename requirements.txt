@@ -1,1 +1,3 @@
 llvmlite
+psycopg2
+mysql-connector-python
