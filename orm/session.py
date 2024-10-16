@@ -6,13 +6,12 @@ class Session:
         self._transaction = []
 
     def add(self, instance):
-        instance_dict = {field: getattr(instance, field) for field in instance._fields if field!="id"}
+        instance_dict = {field: getattr(instance, field) for field in instance._fields if field != "id"}
         columns = ', '.join(instance_dict.keys())
         placeholders = ', '.join(['?' for _ in instance_dict.values()])
         query = f"INSERT INTO {instance.__class__.__name__.lower()} ({columns}) VALUES ({placeholders})"
         self.storage.execute(query, list(instance_dict.values()))
         self._transaction.append(('add', instance))
-        
         self.refresh(instance)
 
     def commit(self):
@@ -50,12 +49,11 @@ class Session:
 
     def refresh(self, instance):
         table_name = instance.__class__.__name__.lower()
-        query = f"SELECT * FROM {table_name} WHERE rowid = last_insert_rowid()"  # Untuk mendapatkan ID terakhir
+        query = f"SELECT * FROM {table_name} WHERE rowid = last_insert_rowid()"  # Mendapatkan ID terakhir
         cursor = self.storage.execute(query)
         row = cursor.fetchone()
         
         if row:
-            # Mengambil semua kolom dari hasil query
             fields = list(instance._fields.keys())
             for idx, field in enumerate(fields):
                 setattr(instance, field, row[idx])

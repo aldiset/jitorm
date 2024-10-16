@@ -5,8 +5,11 @@ name = "pypi"
 
 [packages]
 llvmlite = "*"
-psycopg2 = "*"
-mysql-connector-python = "*"
+psutil = "*"
+memory-profiler = "*"
+sqlalchemy = "*"
+fastapi = "*"
+uvicorn = "*"
 
 [dev-packages]
 

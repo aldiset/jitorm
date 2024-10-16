@@ -3,10 +3,7 @@ from .fields import Field
 class ModelMeta(type):
     def __new__(cls, name, bases, attrs):
         fields = {key: value for key, value in attrs.items() if isinstance(value, Field)}
-        for key in fields.keys():
-            attrs.pop(key)
-        attrs['_fields'] = fields
-        attrs['__slots__'] = list(fields.keys())
+        attrs['_fields'] = fields 
         return super().__new__(cls, name, bases, attrs)
 
 class Model(metaclass=ModelMeta):
@@ -14,13 +11,14 @@ class Model(metaclass=ModelMeta):
         for key, value in kwargs.items():
             if key not in self._fields:
                 raise ValueError(f"Unknown field: {key}")
-            if key in self.__slots__:
-                object.__setattr__(self, key, value)
-            else:
-                setattr(self, key, value)
+            setattr(self, key, value) 
 
     def save(self, session):
         session.add(self)
+
+    def __repr__(self):
+        field_values = ", ".join(f"{k}={getattr(self, k)}" for k in self._fields.keys())
+        return f"<{self.__class__.__name__}({field_values})>"
 
     @classmethod
     def all(cls, session):

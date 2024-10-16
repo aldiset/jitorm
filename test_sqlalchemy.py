@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 import time
 import psutil
@@ -18,7 +18,7 @@ class Users(Base):
 
 # Define a function to create the engine and session
 def setup_database():
-    engine = create_engine('sqlite:///socialmedia.db')  # Or use another database URI
+    engine = create_engine('sqlite:///users.db')  # Or use another database URI
     Session = sessionmaker(bind=engine)
     session = Session()
     return session
