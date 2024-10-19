@@ -18,8 +18,8 @@ COPY . .
 # Tetapkan perintah default untuk menjalankan skrip
 
 #FASTAPI
-EXPOSE 80
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+# EXPOSE 80
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
 
 #run
 # CMD [ "python", "run.py" ]
