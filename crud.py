@@ -31,3 +31,14 @@ class CRUD:
         db.delete(model, filters)
         db.commit()
         return
+    
+    @staticmethod
+    def bulk_create(db: Session, model, data):
+        db.bulk_create(model=model, items=data)
+        return
+    
+    @staticmethod
+    def bulk_update(db: Session, model, updates):
+        db.bulk_update(datas=updates)
+        return
+        

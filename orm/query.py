@@ -5,7 +5,7 @@ class Query:
         self.model_class = model_class
         self.session = session
         self.filters = {}
-        self._results = None  # Lazy evaluation of results
+        self._results = None
 
     def filter(self, **kwargs):
         self.filters.update(kwargs)
@@ -19,10 +19,18 @@ class Query:
         return query, list(self.filters.values())
 
     def _execute_query(self):
-        if self._results is None:  # Lazy load: execute query only once
+        if self._results is None:
             query, params = self._build_query()
-            rows = self.session.storage.execute(query, params).fetchall()
-            self._results = [map_to_instance(self.model_class, row) for row in rows]
+            self.session.storage.connect()  # Ensure the connection is open
+            cursor = self.session.storage.conn.cursor()  # Create a cursor directly
+            try:
+                cursor.execute(query, params)  # Execute the query
+                rows = cursor.fetchall()  # Fetch all rows
+                self._results = [map_to_instance(self.model_class, row) for row in rows]
+            finally:
+                cursor.close()  # Always close the cursor
+                self.session.storage.close()  # Close the connection to release resources
+
         return self._results
 
     def all(self):

@@ -6,18 +6,14 @@ llvm.initialize()
 llvm.initialize_native_target()
 llvm.initialize_native_asmprinter()
 
-# Cache untuk menyimpan modul JIT yang sudah dikompilasi
 jit_cache = {}
 
 def create_jit_function(cls):
-    # Modul LLVM yang akan mengandung fungsi JIT
     module = ir.Module(name="jit_mapping_module")
 
-    # Definisikan fungsi JIT (void dengan dua argumen pointer)
     func_type = ir.FunctionType(ir.VoidType(), [ir.IntType(8).as_pointer(), ir.IntType(8).as_pointer()])
     function = ir.Function(module, func_type, name="map_to_instance")
 
-    # Mulai body fungsi
     block = function.append_basic_block(name="entry")
     builder = ir.IRBuilder(block)
 
@@ -88,10 +84,7 @@ def compile_and_run_jit(cls, data):
         # Simpan engine ke dalam cache untuk reusability
         jit_cache[cls] = engine
 
-    # Setelah JIT dieksekusi, kita bisa mengembalikan objek Python yang sudah dipetakan
     return cls(**dict(zip(cls._fields.keys(), data)))
 
-# Fungsi utama yang digunakan untuk memanggil JIT dan memetakan tuple ke objek
 def map_to_instance(cls, data):
-    # Kompilasi dan jalankan JIT untuk memetakan data ke instance
     return compile_and_run_jit(cls, data)
