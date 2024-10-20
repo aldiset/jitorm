@@ -16,16 +16,18 @@ class Session:
             self.rollback()
 
     def add(self, model):
-        """Add a new record to the database and return the inserted data."""
         fields = ', '.join([f for f in model._fields if getattr(model, f) is not None])
         values = tuple(getattr(model, f) for f in model._fields if getattr(model, f) is not None)
         placeholders = ', '.join(['?' for _ in values])
         query = f"INSERT INTO {model.__class__.__name__.lower()} ({fields}) VALUES ({placeholders})"
+        last_row_id = self.storage.execute(query, values)
         
-        with self.storage.execute(query, values) as cursor:
-            self.commit()
-            last_row_id = cursor.lastrowid
-        return self.refresh(model, last_row_id)
+        pk_field = next((f for f in model._fields if getattr(model._fields[f], 'primary_key', False)), None)
+        if not pk_field:
+            raise ValueError("No primary key defined for the model.")
+    
+        setattr(model, pk_field, last_row_id)
+        return model
 
     def commit(self):
         self.storage.commit()
@@ -42,7 +44,6 @@ class Session:
         placeholders = ', '.join(['?' for _ in items[0]])
         query = f"INSERT INTO {model.__name__.lower()} ({columns}) VALUES ({placeholders})"
         params = [tuple(item.values()) for item in items]
-        breakpoint()
         self.storage.executemany(query, params)
         self.commit()
 
@@ -100,18 +101,5 @@ class Session:
         self.storage.execute(query, params)
         self.storage.commit()
 
-    def refresh(self, model, last_row_id):
-        """Refresh and return the model's data from the database using the last inserted row ID."""
-        pk_field = next((f for f in model._fields if getattr(model._fields[f], 'primary_key', False)), None)
-        if not pk_field:
-            raise ValueError("No primary key defined for the model.")
-        
-        query = f"SELECT * FROM {model.__class__.__name__.lower()} WHERE {pk_field} = ?"
-        with self.storage.execute(query, (last_row_id,)) as cursor:
-            row = cursor.fetchone()
-            if row:
-                for field in model._fields:
-                    setattr(model, field, row[field])
-        return model
 
 

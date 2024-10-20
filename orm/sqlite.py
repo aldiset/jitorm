@@ -1,5 +1,4 @@
 import sqlite3
-from contextlib import contextmanager
 
 class DatabaseConnection:
     def __init__(self, db_path):
@@ -26,6 +25,7 @@ class DatabaseConnection:
             cursor = self.conn.cursor()
             cursor.execute(query, params)
             self.conn.commit()
+            return cursor.lastrowid
         except sqlite3.DatabaseError as e:
             print(f"Database error: {e}")
             self.conn.rollback()
