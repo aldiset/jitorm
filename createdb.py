@@ -27,4 +27,4 @@ CREATE TABLE IF NOT EXISTS users (
 conn.commit()
 conn.close()
 
-print("Database dan tabel 'kw' berhasil dibuat.")
+print("Database dan tabel 'users' berhasil dibuat.")

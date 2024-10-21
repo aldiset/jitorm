@@ -10,6 +10,7 @@ memory-profiler = "*"
 sqlalchemy = "*"
 fastapi = "*"
 uvicorn = "*"
+pandas = "*"
 
 [dev-packages]
 
